@@ -38,8 +38,13 @@ Use `lip` with `lip.toml`, or copy the folder by hand.
 
 | Build | Copy `UtilityRenderDistanceExpansion/` to |
 |---|---|
-| Dedicated server | `<server>/mods/UtilityRenderDistanceExpansion/` |
+| Dedicated server 1.26.60 | `<server>/mods/UtilityRenderDistanceExpansion/` |
+| Dedicated server 1.26.51 | `<server>/plugins/UtilityRenderDistanceExpansion/` |
 | Client | `<game instance>/mods/UtilityRenderDistanceExpansion/` |
+
+LeviLamina 26.51 uses `plugins/` for server native mods when that directory exists
+(it does on a standard server install); 26.60 uses `mods/`. Installing a 26.51 server
+build into `mods/` will load **0 mods**.
 
 For 1.26.51 use the `ll26.51` variant or the
 `UtilityRenderDistanceExpansion-{server,client}-windows-x64-ll26.51.zip` asset.

@@ -42,7 +42,7 @@ platform = "win-x64"
 [[variants."ll26.51".assets]]
 type = "zip"
 urls = ["https://{{id}}/releases/download/v{{version}}/UtilityRenderDistanceExpansion-server-windows-x64-ll26.51.zip"]
-place = [{ src = "UtilityRenderDistanceExpansion/", dest = "mods/UtilityRenderDistanceExpansion/" }]
+place = [{ src = "UtilityRenderDistanceExpansion/", dest = "plugins/UtilityRenderDistanceExpansion/" }]
 
 [[variants."ll26.51"]]
 side = "client"
