@@ -22,8 +22,9 @@ option_end()
 -- add_requires("levilamina x.x.x") for a specific version
 -- add_requires("levilamina develop") to use develop version
 -- please note that you should add bdslibrary yourself if using dev version
-local ll_version = get_config("ll_version")
-add_requires("levilamina " .. ll_version, {configs = {target_type = get_config("target_type")}})
+local ll_version = os.getenv("URDE_LL_VERSION") or get_config("ll_version") or "26.60.2"
+print("URDE: ll_version=" .. ll_version)
+add_requires("levilamina " .. ll_version, {configs = {target_type = get_config("target_type") or "server"}})
 
 add_requires("levibuildscript")
 add_requires("nlohmann_json v3.12.0")

@@ -6,6 +6,8 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      URDE_LL_VERSION: ${{ matrix.ll_version }}
     strategy:
       fail-fast: false
       matrix:
