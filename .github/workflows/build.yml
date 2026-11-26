@@ -2,29 +2,33 @@ on:
   pull_request:
   push:
   workflow_dispatch:
-  
+
 jobs:
   build:
     runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
         target_type:
           - server
           - client
+        ll_version:
+          - "26.60.2"
+          - "26.51.9"
     steps:
       - uses: actions/checkout@v7
 
       - uses: xmake-io/github-action-setup-xmake@v1
         # with:
         #   xmake-version: branch@master
-      
+
       - uses: actions/cache@v6
         with:
           path: |
             ~/AppData/Local/.xmake
-          key: xmake-${{ hashFiles('xmake.lua') }}
+          key: xmake-${{ matrix.ll_version }}-${{ hashFiles('xmake.lua') }}
           restore-keys: |
-            xmake-
+            xmake-${{ matrix.ll_version }}-
 
       - name: Setup LLVM
         uses: ZhongRuoyu/setup-llvm@v0
@@ -35,13 +39,13 @@ jobs:
           xmake repo -u
 
       - run: |
-          xmake f -a x64 -m release -p windows -v --target_type=${{ matrix.target_type }} -y
+          xmake f -a x64 -m release -p windows -v --target_type=${{ matrix.target_type }} --ll_version=${{ matrix.ll_version }} -y
 
       - run: |
           xmake -v -y
 
       - uses: actions/upload-artifact@v7
         with:
-          name: ${{ github.event.repository.name }}-${{ github.sha }}-${{ matrix.target_type }}-windows-x64
+          name: ${{ github.event.repository.name }}-${{ github.sha }}-${{ matrix.target_type }}-${{ matrix.ll_version }}-windows-x64
           path: |
-            bin/
+            bin/${{ matrix.target_type }}/

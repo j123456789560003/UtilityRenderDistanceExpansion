@@ -1,6 +1,6 @@
 format = 4
 id = "github.com/MRUIAW/UtilityRenderDistanceExpansion"
-version = "1.0.1"
+version = "1.1.0"
 
 [info]
 name = "URDE | UtilityRenderDistanceExpansion"
@@ -30,4 +30,28 @@ platform = "win-x64"
 [[variants."".assets]]
 type = "zip"
 urls = ["https://{{id}}/releases/download/v{{version}}/UtilityRenderDistanceExpansion-client-windows-x64.zip"]
+place = [{ src = "UtilityRenderDistanceExpansion/", dest = "mods/UtilityRenderDistanceExpansion/" }]
+
+[[variants."ll26.51"]]
+side = "server"
+platform = "win-x64"
+
+[variants."ll26.51".deps]
+"github.com/LiteLDev/LeviLamina" = ">=26.51.9 <26.52.0"
+
+[[variants."ll26.51".assets]]
+type = "zip"
+urls = ["https://{{id}}/releases/download/v{{version}}/UtilityRenderDistanceExpansion-server-windows-x64-ll26.51.zip"]
+place = [{ src = "UtilityRenderDistanceExpansion/", dest = "mods/UtilityRenderDistanceExpansion/" }]
+
+[[variants."ll26.51"]]
+side = "client"
+platform = "win-x64"
+
+[variants."ll26.51".deps]
+"github.com/LiteLDev/LeviLamina" = ">=26.51.9 <26.52.0"
+
+[[variants."ll26.51".assets]]
+type = "zip"
+urls = ["https://{{id}}/releases/download/v{{version}}/UtilityRenderDistanceExpansion-client-windows-x64-ll26.51.zip"]
 place = [{ src = "UtilityRenderDistanceExpansion/", dest = "mods/UtilityRenderDistanceExpansion/" }]

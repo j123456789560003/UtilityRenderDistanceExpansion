@@ -1,7 +1,7 @@
 add_rules("mode.debug", "mode.release")
 
 -- Single version constant; keep lip.toml in sync.
-local urde_version = "1.0.1"
+local urde_version = "1.1.0"
 set_version(urde_version)
 
 add_repositories("levimc-repo https://github.com/LiteLDev/xmake-repo.git")
@@ -12,10 +12,18 @@ option("target_type")
     set_values("server", "client")
 option_end()
 
+option("ll_version")
+    set_default("26.60.2")
+    set_showmenu(true)
+    set_values("26.60.2", "26.51.9")
+    set_description("LeviLamina / game version to build against")
+option_end()
+
 -- add_requires("levilamina x.x.x") for a specific version
 -- add_requires("levilamina develop") to use develop version
 -- please note that you should add bdslibrary yourself if using dev version
-add_requires("levilamina 26.60.2", {configs = {target_type = get_config("target_type")}})
+local ll_version = get_config("ll_version")
+add_requires("levilamina " .. ll_version, {configs = {target_type = get_config("target_type")}})
 
 add_requires("levibuildscript")
 add_requires("nlohmann_json v3.12.0")
@@ -62,6 +70,9 @@ target("UtilityRenderDistanceExpansion")
     set_kind("shared")
     set_languages("c++20")
     set_symbols("debug")
+    if ll_version == "26.51.9" then
+        add_defines("URDE_LL_2651")
+    end
     add_headerfiles("src/**.h")
     add_files("src/**.cpp")
     add_includedirs("src")

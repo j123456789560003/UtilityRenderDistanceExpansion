@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.0]
+
+Support Bedrock 1.26.51 and LeviLamina 26.51.9 alongside 1.26.60, without changing the range algorithms.
+
+- Add an `ll_version` xmake option and build against `levilamina 26.51.9` or `26.60.2`; define `URDE_LL_2651` for the 26.51 build.
+- On 26.51 the movement lever hooks are not compiled because `SpatialActorNetworkData` has no `mEntity`; `update_interval` reports `native/inactive`. Actor-interest and sorted-position replication are unchanged.
+- CI builds the 26.51.9/26.60.2 × server/client matrix; release assets use the `-ll26.51` suffix while 26.60 names stay unchanged.
+- `lip.toml` gains `ll26.51` variants with `>=26.51.9 <26.52.0` dependencies.
+- Verified against the 26.51.9 headers: client events, `getClientInstance`/`getMultiPlayerLevel`, `ClientCommandRegisterEvent`, `LevelRendererCamera` members and replication signatures are present.
+
 ## [1.0.1]
 
 - Migrate lip package manifest from `tooth.json` to `lip.toml` (format 4) with unified `server` and `client` variants.

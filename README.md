@@ -5,9 +5,19 @@ actors, see block entities and keep terrain detail **farther than vanilla**, and
 distant movement smooth. It has a **server build** (dedicated server) and a
 **client build** (also covers single-player and LAN hosting).
 
-- Game: Bedrock **1.26.60** (client 1.26.60.05, BDS 1.26.60.2), Windows x64.
-- Requires **LeviLamina `>=26.60.2 <26.61.0`**.
+- Game: Bedrock **1.26.60** (client 1.26.60.05, BDS 1.26.60.2) and **1.26.51** (BDS 1.26.51.9), Windows x64.
+- Requires **LeviLamina `>=26.60.2 <26.61.0`** (26.60 build) or **`>=26.51.9 <26.52.0`** (26.51 build).
 - License: LGPL-3.0.
+
+## Version support
+
+| Game / LeviLamina | Assets | Notes |
+|---|---|---|
+| 1.26.60 / 26.60.2 | `*-windows-x64.zip` | full feature set |
+| 1.26.51 / 26.51.9 | `*-windows-x64-ll26.51.zip` | movement lever unavailable: LL 26.51 has no `SpatialActorNetworkData::mEntity`; `update_interval` reports `native/inactive` |
+
+`lip` picks the variant whose LeviLamina dependency matches the target; if it does not,
+download the matching `-ll26.51` asset and copy it by hand.
 
 ## What it does
 
@@ -30,6 +40,9 @@ Use `lip` with `lip.toml`, or copy the folder by hand.
 |---|---|
 | Dedicated server | `<server>/mods/UtilityRenderDistanceExpansion/` |
 | Client | `<game instance>/mods/UtilityRenderDistanceExpansion/` |
+
+For 1.26.51 use the `ll26.51` variant or the
+`UtilityRenderDistanceExpansion-{server,client}-windows-x64-ll26.51.zip` asset.
 
 Run the server build on the server and the client build on every player who wants
 the client features. For single-player or LAN hosting you only need the **client**
@@ -121,15 +134,27 @@ native interval (about 7) change nothing. Players use the fastest rate if
 - A remote server's movement and range settings cannot be changed from the client; use the server build there.
 - The movement lever has been tested with animals. Other players on this path have not been tested yet.
 - Longer ranges mean more actors to process and send. Network and CPU costs were estimated, not measured.
+- On 1.26.51 the movement lever hook is not compiled (LL 26.51 has no `SpatialActorNetworkData::mEntity`);
+  ranges and replication are unaffected, `update_interval` reports `native/inactive`.
 
 ## Build
 
 ```powershell
-xmake f -a x64 -m release -p windows --target_type=server -y
+# 1.26.60 (default)
+xmake f -a x64 -m release -p windows --target_type=server --ll_version=26.60.2 -y
 xmake build
-xmake f -a x64 -m release -p windows --target_type=client -y
+xmake f -a x64 -m release -p windows --target_type=client --ll_version=26.60.2 -y
+xmake build
+
+# 1.26.51
+xmake f -a x64 -m release -p windows --target_type=server --ll_version=26.51.9 -y
+xmake build
+xmake f -a x64 -m release -p windows --target_type=client --ll_version=26.51.9 -y
 xmake build
 ```
+
+GitHub Actions builds all four combinations (`.github/workflows/build.yml`); release
+assets are named with the `-ll26.51` suffix for the 26.51 variants.
 
 Output goes to `bin/server/UtilityRenderDistanceExpansion/` and
 `bin/client/UtilityRenderDistanceExpansion/`. `xmake build urde-checks` followed by

@@ -50,16 +50,21 @@ struct SendContext {
 struct ReplicationContext { TickContext const* tick; ChunkSource const* source; };
 thread_local TickContext* tickContext = nullptr;
 thread_local ReplicationContext* replicationContext = nullptr;
+#ifndef URDE_LL_2651
 thread_local SendContext* sendContext = nullptr;
+#endif
 using Tick = void (Level::*)();
 using Replicate = void (ActorReplication::*)(std::vector<WeakEntityRef> const&, Level const&, ChunkSource&);
 using Sorted = std::vector<ChunkPos> (Level::*)(std::vector<ChunkPos> const&) const;
 using Expand = std::vector<ChunkPos> (*)(std::vector<ChunkPos> const&, std::vector<ChunkPos> const&);
+#ifndef URDE_LL_2651
 using Interval = std::optional<uint64> (SpatialActorNetworkData::*)(Player&) const;
 using SendUpdate = void (SpatialActorNetworkData::*)(bool,bool,bool,bool);
-static_assert(std::is_same_v<decltype(&SpatialActorNetworkData::_getOptimizationUpdateInterval), Interval>);
+#endif
+#ifndef URDE_LL_2651
 static_assert(std::is_same_v<decltype(&SpatialActorNetworkData::sendUpdate), SendUpdate>);
 static_assert(std::is_same_v<decltype(SpatialActorNetworkData::mEntity), Actor&>);
+#endif
 static_assert(!std::is_polymorphic_v<SpatialActorNetworkData>); // direct receiver; thisFor is constrained to polymorphic types
 static_assert(std::is_same_v<decltype(&Level::tick), Tick>);
 static_assert(std::is_same_v<decltype(&Level::$tick), Tick>);
@@ -68,13 +73,16 @@ static_assert(std::is_same_v<decltype(&Level::getSortedPositionsFromClientOffset
 static_assert(std::is_same_v<decltype(&Level::$getSortedPositionsFromClientOffsets), Sorted>);
 static_assert(std::is_same_v<decltype(&ChunkTickOffsetManager::getSortedPositionsFromClientOffsets), Expand>);
 
+#ifndef URDE_LL_2651
 bool movementActive() {
     return enabled && tickContext && tickContext->generation == generation;
 }
 bool matchingActor(Actor const& actor) {
     return !actor.mRemoved && actor.mLevel && &actor.getLevel() == tickContext->level;
 }
+#endif
 
+#ifndef URDE_LL_2651
 LL_TYPE_INSTANCE_HOOK(UpdateInterval, ll::memory::HookPriority::Normal, SpatialActorNetworkData,
     &SpatialActorNetworkData::_getOptimizationUpdateInterval, std::optional<uint64>, Player& player) {
     auto native = origin(player);
@@ -111,6 +119,7 @@ LL_TYPE_INSTANCE_HOOK(SendUpdateScope, ll::memory::HookPriority::Normal, Spatial
     // calls may yield zero/multiple recipient packets and are not deliveries.
     origin(forceMove,forceMoveLocalEntity,forceAbsoluteMovement,forceCompletion);
 }
+#endif
 
 LL_TYPE_INSTANCE_HOOK(LevelTick, ll::memory::HookPriority::Normal, Level, &Level::$tick, void) {
     auto* level = thisFor<Level>();
@@ -194,12 +203,14 @@ bool enable(Provider provider) {
     if (!installHook<LevelTick>("Level::tick")) return false;
     if (!installHook<Replication>("ActorReplication::processReplicationForPlayers")) { LevelTick::unhook(); return false; }
     if (!installHook<SortedPositions>("Level::getSortedPositionsFromClientOffsets")) { Replication::unhook(); LevelTick::unhook(); return false; }
+#ifndef URDE_LL_2651
     if (!installHook<UpdateInterval>("SpatialActorNetworkData::_getOptimizationUpdateInterval")) {
         SortedPositions::unhook(); Replication::unhook(); LevelTick::unhook(); return false;
     }
     if (!installHook<SendUpdateScope>("SpatialActorNetworkData::sendUpdate")) {
         UpdateInterval::unhook(); SortedPositions::unhook(); Replication::unhook(); LevelTick::unhook(); return false;
     }
+#endif
     installed = true;
     invalidate();
     enabled = true;
@@ -212,12 +223,25 @@ void invalidate() {
 bool active() { return enabled && observedGeneration == generation; }
 int effectiveRadius() { return observedGeneration == generation ? radius.load() : 0; }
 std::string effectiveMovement() {
+#ifdef URDE_LL_2651
+    return "native/inactive (LL 26.51 has no SpatialActorNetworkData::mEntity)";
+#else
     auto policy = observedPolicy.load();
     return policy && active() ? policy->movement.describe() + " (scoped movement lever)" : std::string("native/inactive");
+#endif
 }
 void disable() {
     enabled = false;
     invalidate();
-    if (installed) { SendUpdateScope::unhook(); UpdateInterval::unhook(); SortedPositions::unhook(); Replication::unhook(); LevelTick::unhook(); installed = false; }
+    if (installed) {
+#ifndef URDE_LL_2651
+        SendUpdateScope::unhook();
+        UpdateInterval::unhook();
+#endif
+        SortedPositions::unhook();
+        Replication::unhook();
+        LevelTick::unhook();
+        installed = false;
+    }
 }
 }
